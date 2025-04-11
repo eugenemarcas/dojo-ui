@@ -116,6 +116,8 @@ const Datatablev2 = ({
     end: Date;
   }[] = [];
 
+  const [rowCounter, setRowCounter] = useState(1);
+
   const table = useReactTable({
     data: data,
     columns: React.useMemo(
@@ -308,6 +310,10 @@ const Datatablev2 = ({
       setAllFilters(tempAllFilters);
     }
   }, []);
+
+  useEffect(() => {
+    setRowCounter(1); // Reset the counter when data changes
+  }, [data]);
   return (
     <div className="flex w-full flex-col gap-[8px]">
       {/* Table controls */}
@@ -410,9 +416,19 @@ const Datatablev2 = ({
                       className={cn()}
                       key={row.id}
                     >
-                      {row.getVisibleCells().map(
-                        (cell, idx: number) =>
-                          (!cell.row.original.info || (cell.row.original.info && idx === 0)) && (
+                      {row.getVisibleCells().map((cell, idx: number) => {
+                        if (!cell.row.original.info || (cell.row.original.info && idx === 0)) {
+                          let cellContent;
+                          if (idx === 0) {
+                            // Determine the content for the first cell
+                            const rowIndex = rowIdx % 4 + 1; // Cycle through 1 to 4
+                            cellContent = rowIndex;
+                          } else {
+                            // Render the original cell content for other cells
+                            cellContent = flexRender(cell.column.columnDef.cell, cell.getContext());
+                          }
+
+                          return (
                             <td
                               colSpan={cell.row.original.info ? row.getVisibleCells().length : 1}
                               key={cell.id}
@@ -432,10 +448,12 @@ const Datatablev2 = ({
                                 cell.row.original.info && 'p-0 h-fit'
                               )}
                             >
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              {cellContent}
                             </td>
-                          )
-                      )}
+                          );
+                        }
+                        return null; // Render nothing if the condition is not met
+                      })}
                     </tr>
                   ))}
                 </tbody>
