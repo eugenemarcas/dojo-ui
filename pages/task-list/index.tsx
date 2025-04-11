@@ -200,7 +200,14 @@ export default function Index() {
         header: 'Name',
         size: 130,
         cell: (info) => {
-          return <div className=" truncate">{info.getValue() ?? info.row.original.title}</div>;
+          const taskIndex = tasks.findIndex((t) => t.taskId === info.row.original.taskId);
+          const groupNumber = (taskIndex % 4) + 1;
+          const title = info.getValue() ?? info.row.original.title;
+          return (
+            <div className="truncate">
+              G{groupNumber} {title}
+            </div>
+          );
         },
       },
       {
