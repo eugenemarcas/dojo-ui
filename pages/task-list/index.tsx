@@ -200,8 +200,14 @@ export default function Index() {
         header: 'Name',
         size: 130,
         cell: (info) => {
+          const currentPage = page ? parseInt(page as string) : 1;
+          const pageSize = limit ? parseInt(limit as string) : 10;
           const taskIndex = tasks.findIndex((t) => t.taskId === info.row.original.taskId);
-          const groupNumber = (taskIndex % 4) + 1;
+          const globalIndex = (currentPage - 1) * pageSize + taskIndex;
+          // For each new task, we want to increment the group number
+          // So if newest task (index 0) is G4, next task (index 1) should be G3, then G2, then G1
+          // We can achieve this by using the negative of the index
+          const groupNumber = 4 - (globalIndex % 4);
           const title = info.getValue() ?? info.row.original.title;
           return (
             <div className="truncate">
